@@ -50,7 +50,6 @@ export default AdminPage(function Quizzes (props) {
               <table className="table">
                 <thead className="thead-light text-center">
                   <tr>
-                    <th>タイトル</th>
                     <th>本文</th>
                     <th></th>
                   </tr>
@@ -58,12 +57,9 @@ export default AdminPage(function Quizzes (props) {
                 <tbody>
                   {
                     quizzes.map((quiz) => {
-                      const { id, ref, title, description, createdAt } = quiz;
+                      const { id, ref, description, createdAt } = quiz;
                       return (
                         <tr key={id}>
-                          <td>
-                            {title}
-                          </td>
                           <td>
                             {description}
                           </td>

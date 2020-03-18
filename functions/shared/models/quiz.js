@@ -3,13 +3,6 @@ const { isEmpty } = require('lodash');
 module.exports = {
   fields: () => {
     return {
-      title: {
-        label: 'タイトル',
-        type: 'string',
-        validations: {
-          required: v => !isEmpty(v),
-        },
-      },
       description: {
         label: '本文',
         type: 'text',

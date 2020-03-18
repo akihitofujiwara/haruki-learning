@@ -60,18 +60,25 @@ export default AppPage(function Quiz (props) {
             </div>
           </div>
         ) : (
-          <div className="d-flex justify-content-center" style={{ fontSize: 70 }}>
-            {
-              answerResult === true ? (
-                <div>
-                  せいかい！
-                </div>
-              ) : (
-                <div>
-                  まちがい...
-                </div>
-              )
-            }
+          <div>
+            <div className="d-flex justify-content-center" style={{ fontSize: 100 }}>
+              {
+                answerResult === true ? (
+                  <div>
+                    せいかい！
+                  </div>
+                ) : (
+                  <div>
+                    まちがい...
+                  </div>
+                )
+              }
+            </div>
+            <div className="d-flex justify-content-center" style={{ fontSize: 70, marginTop: 150 }}>
+              <Link to="/" className="text-secondary" style={{ fontSize: 40 }}>
+                もどる
+              </Link>
+            </div>
           </div>
         )
       }
