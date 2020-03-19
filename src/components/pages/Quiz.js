@@ -51,7 +51,7 @@ export default AppPage(function Quiz (props) {
               {
                 quiz.optionsString.split(/\n/).map((option, i) => {
                   return (
-                    <div className="card p-3 mb-3" style={{ fontSize: 30, opacity: 0.7 }} onClick={onClickAnswer.bind(null, i)}>
+                    <div key={i} className="card p-3 mb-3" style={{ fontSize: 30, opacity: 0.7 }} onClick={onClickAnswer.bind(null, i)}>
                       {option}
                     </div>
                   );

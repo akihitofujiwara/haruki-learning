@@ -27,7 +27,7 @@ export default function Bgm (props) {
       }
       {
         (process.env.REACT_APP_ENV || 'development') === 'production' && (
-          <audio src="https://vgmdownloads.com/soundtracks/super-mario-odyssey-ost/agmdyrlw/4-01%20Fossil%20Falls%20%288-Bit%29.mp3" ref={audioEl} controls />
+          <audio src="https://vgmdownloads.com/soundtracks/super-mario-odyssey-ost/agmdyrlw/4-01%20Fossil%20Falls%20%288-Bit%29.mp3" ref={audioEl} loop />
         )
       }
     </div>
