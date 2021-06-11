@@ -25,7 +25,7 @@ export default AppPage(function Dashboard (props) {
             return (
               <Link
                 to={`/quizzes/${quiz.id}?index=${i}`}
-                className="card font-weight-bold rounded-circle p-3 d-flex justify-content-center align-items-center mb-3"
+                className="card font-weight-bold rounded-circle p-3 d-flex justify-content-center align-items-center mb-3 position-relative"
                 key={i}
                 style={{
                   fontSize: 60,

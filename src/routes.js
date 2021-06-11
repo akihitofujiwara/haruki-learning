@@ -3,8 +3,10 @@ import { Route, Switch, } from 'react-router';
 
 import AdminRoot from './components/pages/AdminRoot';
 import AdminQuizzes from './components/pages/AdminQuizzes';
+import AdminMissions from './components/pages/AdminMissions';
 import Dashboard from './components/pages/Dashboard';
 import Quiz from './components/pages/Quiz';
+import Missions from './components/pages/Missions';
 
 const routeObjs = [
   {
@@ -19,6 +21,11 @@ const routeObjs = [
   },
   {
     exact: true,
+    path: '/admin/missions',
+    component: AdminMissions,
+  },
+  {
+    exact: true,
     path: '/',
     component: Dashboard,
   },
@@ -26,6 +33,11 @@ const routeObjs = [
     exact: true,
     path: '/quizzes/:quizId',
     component: Quiz,
+  },
+  {
+    exact: true,
+    path: '/missions',
+    component: Missions,
   },
 ]
 

@@ -167,6 +167,12 @@ export default function Field (props) {
               <Input type="textarea" value={value} onChange={_ => setValueAndStart(_.target.value)} className={validationCss} readOnly={readOnly(value, props)} placeholder={placeholder} {...inputProps} />
             </Fragment>
           ),
+          file: () => (
+            <Fragment>
+              {label && <Label>{label}</Label>}
+              <Input type="file" name={fieldName} onChange={_ => setValueAndStart(get(_, 'target.files[0]'))} className={validationCss} readOnly={readOnly(value, props)} {...inputProps} />
+            </Fragment>
+          ),
         })[type]()
       }
       {
