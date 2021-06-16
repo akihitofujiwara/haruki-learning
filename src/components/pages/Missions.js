@@ -32,17 +32,19 @@ export default function Missions(props) {
   return (
     <div className="company-custom-sections">
       <div className="container py-5">
-        <div className="d-flex justify-content-center mb-1">
+        <div className="mb-4 d-flex justify-content-center mb-1">
           <h3>はるきのミッション</h3>
         </div>
-        <div className="d-flex align-items-end justify-content-between mb-5">
+        <div className="d-flex align-items-end justify-content-center mb-3">
           <div>
             <span>現在のポイント: </span>
             <span className="text-info font-weight-bold" style={{ fontSize: 60, lineHeight: 1, }}>{currentPoint}</span>
           </div>
+        </div>
+        <div className="d-flex align-items-end justify-content-center mb-5">
           <div>
             <GiftButton {...{ giftTypes, gifts, currentPoint, }} />
-            <GiftHistoryyButton {...{ giftTypes, giftTypesById, gifts, currentPoint, }} />
+            <GiftHistoryButton {...{ giftTypes, giftTypesById, gifts, currentPoint, }} />
           </div>
         </div>
         <div className="d-flex flex-wrap justify-content-around">
@@ -166,9 +168,9 @@ function GiftButton (props) {
   );
 }
 
-function GiftHistoryyButton (props) {
+function GiftHistoryButton (props) {
   const { giftTypes, giftTypesById, gifts, currentPoint } = props;
-  const [showsModal, toggleModal] = useToggle(true);
+  const [showsModal, toggleModal] = useToggle(false);
 
   return (
     <Fragment>
