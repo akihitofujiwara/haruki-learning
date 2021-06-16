@@ -13,6 +13,15 @@ export default AdminPage(class AdminRoot extends Component {
               <li className="nav-item">
                 <Link className="nav-link" to="/admin/quizzes">クイズ管理</Link>
               </li>
+              <li className="nav-item">
+                <Link className="nav-link" to="/admin/missions">ミッション管理</Link>
+              </li>
+              <li className="nav-item">
+                <Link className="nav-link" to="/admin/giftTypes">ギフトタイプ管理</Link>
+              </li>
+              <li className="nav-item">
+                <Link className="nav-link" to="/admin/gifts">ギフト管理</Link>
+              </li>
             </ul>
           </div>
         </div>

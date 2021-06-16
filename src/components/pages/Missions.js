@@ -1,12 +1,15 @@
-import React from 'react';
-import { Button, } from 'reactstrap';
-import { isEmpty, get, sumBy, isString, last, sortBy, omit } from 'lodash';
+import React, { Fragment } from 'react';
+import { Button, Modal, ModalBody, ModalHeader, ModalFooter, Form, FormGroup, Input, Label } from 'reactstrap';
+import { keyBy, isEmpty, get, sumBy, isString, last, sortBy, omit } from 'lodash';
 import { toast } from 'react-toastify';
 import { useToggle } from 'react-use';
 import classnames from 'classnames';
+import { format as formatDate } from 'date-fns';
+import numeral from 'numeral';
 
 import firebase from '../../firebase';
 import { userFields } from '../../shared/models/mission';
+import { statuses as giftStatuses } from '../../shared/models/gift';
 import useCollectionSubscription from '../hooks/useCollectionSubscription';
 import useDocumentSubscription from '../hooks/useDocumentSubscription';
 import ModelFormModal from '../modals/ModelFormModal';
@@ -15,13 +18,16 @@ import EditButton from '../EditButton';
 const storageRef = firebase.storage().ref();
 const db = firebase.firestore();
 const missionsRef = db.collection('missions');
-const missionsSettingRef = db.collection('settings').doc('missions');
+const giftTypesRef = db.collection('giftTypes');
+const giftsRef = db.collection('gifts');
 
 export default function Missions(props) {
   const { match: { params: { companyId } } } = props;
   const missions = useCollectionSubscription(missionsRef.orderBy('createdAt'));
-  const missionsSetting = useDocumentSubscription(missionsSettingRef);
-  const currentPoint = sumBy(missions.filter(_ => _.status === 'completed'), 'point') - get(missionsSetting, 'usedPoint', 0);
+  const giftTypes = useCollectionSubscription(giftTypesRef.orderBy('createdAt'));
+  const giftTypesById = keyBy(giftTypes, 'id');
+  const gifts = useCollectionSubscription(giftsRef.orderBy('createdAt'));
+  const currentPoint = sumBy(missions.filter(_ => _.status === 'completed'), 'point') - sumBy(gifts, _ => get(giftTypesById, [_.giftTypeId, 'point'], 0));
 
   return (
     <div className="company-custom-sections">
@@ -29,10 +35,14 @@ export default function Missions(props) {
         <div className="d-flex justify-content-center mb-1">
           <h3>はるきのミッション</h3>
         </div>
-        <div className="d-flex justify-content-end mb-5">
+        <div className="d-flex align-items-end justify-content-between mb-5">
           <div>
             <span>現在のポイント: </span>
-            <span className="text-info font-weight-bold" style={{ fontSize: 60, }}>{currentPoint}</span>
+            <span className="text-info font-weight-bold" style={{ fontSize: 60, lineHeight: 1, }}>{currentPoint}</span>
+          </div>
+          <div>
+            <GiftButton {...{ giftTypes, gifts, currentPoint, }} />
+            <GiftHistoryyButton {...{ giftTypes, giftTypesById, gifts, currentPoint, }} />
           </div>
         </div>
         <div className="d-flex flex-wrap justify-content-around">
@@ -94,5 +104,116 @@ export default function Missions(props) {
         </div>
       </div>
     </div>
+  );
+}
+
+function GiftButton (props) {
+  const { giftTypes, gifts, currentPoint } = props;
+  const [showsModal, toggleModal] = useToggle(false);
+
+  return (
+    <Fragment>
+      <Button color="primary" onClick={toggleModal.bind(null, true)}>
+        <span className="fas fa-gift mr-1" />
+        プレゼントをもらう
+      </Button>
+      <Modal isOpen={showsModal}>
+        <ModalHeader>
+          プレゼント
+        </ModalHeader>
+        <ModalBody>
+          <div>
+            {
+              giftTypes.map((giftType) => {
+                const { id, name, point } = giftType;
+                const isGettable = currentPoint >= point;
+
+                const onClick = async () => {
+                  if(!isGettable) return toast.error('ポイントが足りません');
+                  if(!window.confirm('本当にこれをもらいますか？')) return;
+
+                  await giftsRef.add({
+                    giftTypeId: id,
+                    status: 'initial',
+                    createdAt: new Date(),
+                  });
+                  toast.success('プレゼントをリクエストしました');
+                }
+
+                return (
+                  <div key={id} className="card p-3 mb-2" style={{ fontSize: 20, opacity: !isGettable && 0.5, }} onClick={onClick}>
+                    <div className="d-flex align-items-center justify-content-between" style={{ fontSize: 20 }}>
+                      <div>
+                        {name}
+                      </div>
+                      <div>
+                        <span className="text-info font-weight-bold" style={{ fontSize: 40, }}>
+                          {numeral(point).format()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            }
+          </div>
+        </ModalBody>
+        <ModalFooter>
+          <Button className="cancel" color="secondary" onClick={toggleModal.bind(null, false)}>閉じる</Button>
+        </ModalFooter>
+      </Modal>
+    </Fragment>
+  );
+}
+
+function GiftHistoryyButton (props) {
+  const { giftTypes, giftTypesById, gifts, currentPoint } = props;
+  const [showsModal, toggleModal] = useToggle(true);
+
+  return (
+    <Fragment>
+      <Button className="ml-2" outline color="info" onClick={toggleModal.bind(null, true)}>
+        <span className="fas fa-history mr-1" />
+        りれき
+      </Button>
+      <Modal isOpen={showsModal}>
+        <ModalHeader>
+          プレゼントのりれき
+        </ModalHeader>
+        <ModalBody>
+          <div>
+            {
+              gifts.map((gift) => {
+                const { id, giftTypeId, status = 'initial', createdAt, } = gift;
+                const giftType = giftTypesById[giftTypeId];
+                const { label: statusLabel, color } = giftStatuses[status];
+
+                return (
+                  <div key={id} className="card p-2 mb-2" style={{ fontSize: 20, }}>
+                    <div className="text-muted mb-2" style={{ fontSize: '60%', }}>
+                      {formatDate(createdAt.toDate(), 'yyyy/MM/dd HH:mm:ss')}
+                    </div>
+                    <div className="d-flex align-items-center justify-content-between" style={{ fontSize: 20 }}>
+                      <div>
+                        {giftType && giftType.name}
+                      </div>
+                      <div>
+                        {giftType && numeral(giftType.point).format()}
+                      </div>
+                      <div className={classnames(`text-${color}`)}>
+                        {giftStatuses[status].label}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            }
+          </div>
+        </ModalBody>
+        <ModalFooter>
+          <Button className="cancel" color="secondary" onClick={toggleModal.bind(null, false)}>閉じる</Button>
+        </ModalFooter>
+      </Modal>
+    </Fragment>
   );
 }

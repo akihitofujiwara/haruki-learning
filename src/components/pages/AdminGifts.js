@@ -2,12 +2,12 @@ import React, { Component } from 'react';
 import { Button } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { omit, sortBy, keyBy, pick, } from 'lodash';
+import { get, omit, sortBy, keyBy, pick, } from 'lodash';
 import { useToggle } from 'react-use';
 import qs from 'qs';
 
 import firebase from '../../firebase';
-import { fields } from '../../shared/models/mission';
+import { fields } from '../../shared/models/gift';
 import AdminPage from '../hocs/AdminPage';
 import useCollectionSubscription from '../hooks/useCollectionSubscription';
 import ModelFormModal from '../modals/ModelFormModal';
@@ -16,55 +16,48 @@ import AddButton from '../AddButton';
 import DeleteButton from '../DeleteButton';
 
 const db = firebase.firestore();
-const missionsRef = db.collection('missions');
+const giftTypesRef = db.collection('giftTypes');
+const giftsRef = db.collection('gifts');
 
-export default AdminPage(function AdminMissions (props) {
-  const missions = useCollectionSubscription(missionsRef.orderBy('createdAt'));
+export default AdminPage(function AdminGifts (props) {
+  const giftTypes = useCollectionSubscription(giftTypesRef.orderBy('createdAt'));
+  const giftTypesById = keyBy(giftTypes, 'id');
+  const gifts = useCollectionSubscription(giftsRef.orderBy('createdAt'));
 
   return (
     <div>
-      <div className="admin-missions container py-5 position-relative bg-white my-3">
+      <div className="admin-gifts container py-5 position-relative bg-white my-3">
         <div className="d-flex justify-content-center mb-3">
-          <h4>ミッション一覧</h4>
+          <h4>ギフト一覧</h4>
         </div>
         <div className="d-flex justify-content-end mb-3">
-          <AddButton itemRef={missionsRef.doc()} FormModal={ModelFormModal} formProps={{ title: 'ミッション', fields }} />
+          <AddButton itemRef={giftsRef.doc()} FormModal={ModelFormModal} formProps={{ title: 'ギフト', fields: fields({ giftTypes }), }} />
         </div>
         <div>
           {
-            missions.length > 0 ? (
+            gifts.length > 0 ? (
               <table className="table">
                 <thead className="thead-light text-center">
                   <tr>
-                    <th>本文</th>
-                    <th>ポイント</th>
-                    <th>写真</th>
+                    <th>ギフトタイプ</th>
                     <th>状態</th>
                     <th></th>
                   </tr>
                 </thead>
                 <tbody>
                   {
-                    missions.map((mission) => {
-                      const { id, ref, body, point, status, image, createdAt } = mission;
+                    gifts.map((gift) => {
+                      const { id, ref, giftTypeId, status, createdAt } = gift;
                       return (
                         <tr key={id}>
                           <td>
-                            {body}
-                          </td>
-                          <td className="text-right">
-                            {point}
-                          </td>
-                          <td className="text-right">
-                            <a href={image} target="_blank">
-                              <img src={image} style={{ maxWidth: 300, maxHeight: 100 }} />
-                            </a>
+                            {get(giftTypesById, [giftTypeId, 'name'])}
                           </td>
                           <td>
                             {status}
                           </td>
                           <td className="text-right">
-                            <EditButton itemRef={ref} FormModal={ModelFormModal} formProps={{ title: 'ミッション', fields, }} />
+                            <EditButton itemRef={ref} FormModal={ModelFormModal} formProps={{ title: 'ギフト', fields: fields({ giftTypes }), }} />
                             <DeleteButton itemRef={ref} className="ml-2" />
                           </td>
                         </tr>
@@ -75,7 +68,7 @@ export default AdminPage(function AdminMissions (props) {
               </table>
             ) : (
               <div>
-                ミッションは未登録です
+                ギフトは未登録です
               </div>
             )
           }
@@ -84,4 +77,3 @@ export default AdminPage(function AdminMissions (props) {
     </div>
   );
 });
-
