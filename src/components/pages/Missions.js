@@ -12,8 +12,10 @@ import { userFields } from '../../shared/models/mission';
 import { statuses as giftStatuses } from '../../shared/models/gift';
 import useCollectionSubscription from '../hooks/useCollectionSubscription';
 import useDocumentSubscription from '../hooks/useDocumentSubscription';
+import useQueryParams from '../hooks/useQueryParams';
 import ModelFormModal from '../modals/ModelFormModal';
 import EditButton from '../EditButton';
+import QueryBoolean from '../QueryBoolean';
 
 const storageRef = firebase.storage().ref();
 const db = firebase.firestore();
@@ -23,10 +25,15 @@ const giftsRef = db.collection('gifts');
 
 export default function Missions(props) {
   const { match: { params: { companyId } } } = props;
+  const queryParams = useQueryParams();
   const missions = useCollectionSubscription(missionsRef.orderBy('createdAt'));
   const giftTypes = useCollectionSubscription(giftTypesRef.orderBy('createdAt'));
   const giftTypesById = keyBy(giftTypes, 'id');
   const gifts = useCollectionSubscription(giftsRef.orderBy('createdAt'));
+  let filteredItems = missions;
+  if(queryParams.showsAll !== '1') {
+    filteredItems = filteredItems.filter(_ => _.status !== 'completed');
+  }
   const currentPoint = sumBy(missions.filter(_ => _.status === 'completed'), 'point') - sumBy(gifts, _ => get(giftTypesById, [_.giftTypeId, 'point'], 0));
 
   return (
@@ -47,9 +54,12 @@ export default function Missions(props) {
             <GiftHistoryButton {...{ giftTypes, giftTypesById, gifts, currentPoint, }} />
           </div>
         </div>
+        <div className="d-flex align-items-end justify-content-center mb-5">
+          <QueryBoolean paramName="showsAll" label="クリア済みも表示" defaultValue={'0'} />
+        </div>
         <div className="d-flex flex-wrap justify-content-around">
           {
-            missions.map((mission) => {
+            filteredItems.map((mission) => {
               const { id, ref, body, image, point, status = 'initial', } = mission;
               const processValues = async (values) => {
                 const { image } = values;

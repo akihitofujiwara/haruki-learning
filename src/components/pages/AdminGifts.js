@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import { get, omit, sortBy, keyBy, pick, } from 'lodash';
 import { useToggle } from 'react-use';
 import qs from 'qs';
+import { format as formatDate } from 'date-fns';
 
 import firebase from '../../firebase';
 import { fields } from '../../shared/models/gift';
@@ -41,6 +42,7 @@ export default AdminPage(function AdminGifts (props) {
                   <tr>
                     <th>ギフトタイプ</th>
                     <th>状態</th>
+                    <th>作成日時</th>
                     <th></th>
                   </tr>
                 </thead>
@@ -55,6 +57,9 @@ export default AdminPage(function AdminGifts (props) {
                           </td>
                           <td>
                             {status}
+                          </td>
+                          <td>
+                            {formatDate(createdAt.toDate(), 'yyyy/MM/dd HH:mm:ss')}
                           </td>
                           <td className="text-right">
                             <EditButton itemRef={ref} FormModal={ModelFormModal} formProps={{ title: 'ギフト', fields: fields({ giftTypes }), }} />
