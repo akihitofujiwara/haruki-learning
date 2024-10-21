@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, Switch, } from 'react-router';
+import { Route, Switch, Redirect } from 'react-router';
 
 import AdminRoot from './components/pages/AdminRoot';
 import AdminQuizzes from './components/pages/AdminQuizzes';
@@ -39,7 +39,7 @@ const routeObjs = [
   {
     exact: true,
     path: '/',
-    component: Dashboard,
+    component: () => <Redirect to="/missions" />,
   },
   {
     exact: true,

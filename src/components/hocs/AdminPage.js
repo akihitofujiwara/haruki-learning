@@ -5,6 +5,7 @@ import qs from 'qs';
 
 import firebase from '../../firebase';
 import AdminHeaderNav from '../AdminHeaderNav';
+import SignInForm from '../forms/SignInForm';
 
 const auth = firebase.auth();
 const db = firebase.firestore();
@@ -58,6 +59,19 @@ export default function AdminPageHOC(WrappedComponent) {
     }
     render() {
       const { firebaseUser, user, shouldShowLoginForm = false } = this.state;
+      const onSubmitSignInForm = async (values) => {
+        const { email, password } = values;
+        try {
+          await auth.signInWithEmailAndPassword(email, password);
+        } catch(e) {
+          console.error(e);
+          const message = ({
+            'auth/invalid-email': 'メールアドレスの形式が正しくありません',
+            'auth/user-not-found': 'ユーザーが存在しません',
+          })[e.code] || 'ログインに失敗しました';
+          toast.error(message);
+        }
+      };
       return (
         <div className="admin-page h-100">
           {
@@ -80,6 +94,7 @@ export default function AdminPageHOC(WrappedComponent) {
                       Googleでログイン
                     </Button>
                   </div>
+                  <SignInForm onSubmit={onSubmitSignInForm} />
                 </div>
               )
             )

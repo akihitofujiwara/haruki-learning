@@ -8,6 +8,7 @@ import { format as formatDate } from 'date-fns';
 import numeral from 'numeral';
 
 import firebase from '../../firebase';
+import env from '../../env';
 import { userFields } from '../../shared/models/mission';
 import { statuses as giftStatuses } from '../../shared/models/gift';
 import useCollectionSubscription from '../hooks/useCollectionSubscription';
@@ -40,7 +41,7 @@ export default function Missions(props) {
     <div className="company-custom-sections">
       <div className="container py-5">
         <div className="mb-4 d-flex justify-content-center mb-1">
-          <h3>はるきのミッション</h3>
+          <h3>{env('SUBJECT_NAME')}のミッション</h3>
         </div>
         <div className="d-flex align-items-end justify-content-center mb-3">
           <div>
